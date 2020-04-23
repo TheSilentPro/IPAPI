@@ -1,5 +1,4 @@
 ### IPAPI
-[![](https://jitpack.io/v/TheSilentPro/IPAPI.svg)](https://jitpack.io/#TheSilentPro/IPAPI) <br>
 
 Allows you to make requests to ip-api.com easily <br>
 Returns a `JSONObject` with response from the API <br>
@@ -8,7 +7,7 @@ Returns a `JSONObject` with response from the API <br>
 [json-simple](https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple)
 
 ### Downloading
-You may download it from the [Releases Page](https://github.com/TheSilentPro/IPAPI/releases) or [JitPack](https://jitpack.io/#TheSilentPro/IPAPI)
+You may download it from the [Releases Page](https://github.com/TheSilentPro/IPAPI/releases)
 
 ### Usage
 ```java
