@@ -1,88 +1,192 @@
 package tsp.ipapi;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import tsp.ipapi.v1.IPAPILegacy;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.net.URLConnection;
+import java.util.*;
 
 /**
- * Utility class for IP-API.com
- * Responses are formatted in JSON
+ * Version 2 of the {@link IPAPILegacy}
+ *
+ * API for ip-api.com
  * Dependency: json-simple -> https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
  *
- * @author Silent
- * @version 1.0
+ * @author TheSilentPro
+ * @version 2.0
  */
 public class IPAPI {
 
     /**
      * Base URL for checking ips
      */
-    private static String BASE_URL = "http://ip-api.com/json/";
+    private static final String BASE_URL = "http://ip-api.com/json/";
 
-    /**
-     * Check an IP address with default return values
-     *
-     * @param ip The ip to check
-     * @return The results
-     * @throws IOException Something went wrong
-     * @since 1.0
-     */
-    public static JSONObject check(String ip) throws IOException, ParseException {
-        return check(ip, null, null, 5000);
-    }
+    public static class Builder {
 
-    /**
-     * Check an IP address with specified timeout
-     *
-     * @param ip The ip to check
-     * @param timeout Time until connection gives up
-     * @return The results
-     * @throws IOException Something went wrong
-     * @since 1.0
-     */
-    public static JSONObject check(String ip, int timeout) throws IOException, ParseException {
-        return check(ip, null, null, timeout);
-    }
+        private final String ip;
+        private String lang = "en";
+        private final Map<Field, Boolean> fields = new HashMap<>();
 
-    /**
-     * Check an IP address with specified
-     * timeout, fields, lang
-     *
-     * @param ip The ip to check
-     * @param fields The fields you want the ip to return. List of fields: https://ip-api.com/docs/api:json
-     * @param lang Lang code
-     * @param timeout Time until connection gives up
-     * @return The results
-     * @throws IOException Something went wrong
-     * @since 1.0
-     */
-    public static JSONObject check(String ip, String fields, String lang, int timeout) throws IOException, ParseException {
-        if (fields == null) {
-            fields = "33292287";
+        public Builder(String ip) {
+            this.ip = ip;
         }
-        if (lang == null) {
-            lang = "en";
+
+        public Builder withStatus() {
+            fields.put(Field.STATUS, true);
+            return this;
         }
-        StringBuilder response = new StringBuilder();
-        URL website = new URL(BASE_URL + ip + "?fields=" + fields  + "&lang=" + lang);
-        URLConnection connection = website.openConnection();
-        connection.setConnectTimeout(timeout);
-        connection.setRequestProperty("User-Agent", "IPAPI-v1.0");
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(
-                        connection.getInputStream()))) {
-            while ((BASE_URL = in.readLine()) != null) {
-                response.append(BASE_URL);
+
+        public Builder withMessage() {
+            fields.put(Field.MESSAGE, true);
+            return this;
+        }
+
+        public Builder withContinent() {
+            fields.put(Field.CONTINENT, true);
+            return this;
+        }
+
+        public Builder withContinentCode() {
+            fields.put(Field.CONTINENT_CODE, true);
+            return this;
+        }
+
+        public Builder withCountry() {
+            fields.put(Field.COUNTRY, true);
+            return this;
+        }
+
+        public Builder withCountryCode() {
+            fields.put(Field.COUNTRY_CODE, true);
+            return this;
+        }
+
+        public Builder withRegion() {
+            fields.put(Field.REGION, true);
+            return this;
+        }
+
+        public Builder withRegionName() {
+            fields.put(Field.REGION_NAME, true);
+            return this;
+        }
+
+        public Builder withCity() {
+            fields.put(Field.CITY, true);
+            return this;
+        }
+
+        public Builder withDistrict() {
+            fields.put(Field.DISTRICT, true);
+            return this;
+        }
+
+        public Builder withZip() {
+            fields.put(Field.ZIP, true);
+            return this;
+        }
+
+        public Builder withLatitude() {
+            fields.put(Field.LATITUDE, true);
+            return this;
+        }
+
+        public Builder withLongitude() {
+            fields.put(Field.LONGITUDE, true);
+            return this;
+        }
+
+        public Builder withTimezone() {
+            fields.put(Field.TIMEZONE, true);
+            return this;
+        }
+
+        public Builder withOffset() {
+            fields.put(Field.OFFSET, true);
+            return this;
+        }
+
+        public Builder withCurrency() {
+            fields.put(Field.CURRENCY, true);
+            return this;
+        }
+
+        public Builder withInternetServiceProvider() {
+            fields.put(Field.INTERNET_SERVICE_PROVIDER, true);
+            return this;
+        }
+
+        public Builder withOrganization() {
+            fields.put(Field.ORGANIZATION, true);
+            return this;
+        }
+
+        public Builder withAs() {
+            fields.put(Field.AS, true);
+            return this;
+        }
+
+        public Builder withAsName() {
+            fields.put(Field.AS_NAME, true);
+            return this;
+        }
+
+        public Builder withReverse() {
+            fields.put(Field.REVERSE, true);
+            return this;
+        }
+
+        public Builder withMobile() {
+            fields.put(Field.MOBILE, true);
+            return this;
+        }
+
+        public Builder withProxy() {
+            fields.put(Field.PROXY, true);
+            return this;
+        }
+
+        public Builder withHosting() {
+            fields.put(Field.HOSTING, true);
+            return this;
+        }
+
+        public Builder withQuery() {
+            fields.put(Field.QUERY, true);
+            return this;
+        }
+
+        public Builder all() {
+            for (Field field : Field.values()) {
+                fields.put(field, true);
             }
+            return this;
         }
-        JSONParser parser = new JSONParser();
-        return (JSONObject) parser.parse(response.toString());
+
+        public Builder withLanguage(String language) {
+            this.lang = language;
+            return this;
+        }
+
+        public Response build() throws IOException {
+            String req = BASE_URL + ip + "?fields=";
+            StringBuilder builder = new StringBuilder();
+            int index = 0;
+            for (Map.Entry<Field, Boolean> map : fields.entrySet()) {
+                if (map.getValue()) {
+                    index++;
+                    builder.append(map.getKey().getName());
+                    if (fields.keySet().size() > index) {
+                        builder.append(",");
+                    }
+
+                }
+            }
+            req = req + builder.toString() + "&lang=" + lang;
+            return new Response(new URL(req));
+        }
+
     }
 
 }
