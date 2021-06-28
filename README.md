@@ -4,51 +4,36 @@ Allows you to make requests to ip-api.com easily <br>
 
 ### Dependencies
 [json-simple](https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple)
+[OkHttpClient](https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp)
 
 ### Installation
 You may download it from the [Releases Page](https://github.com/TheSilentPro/IPAPI/releases) <br>
 You can also you [JitPack](https://jitpack.io/#TheSilentPro/IPAPI)
 
-### Usage
+### Example Usage
 ```
-Response response = new Builder("1.1.1.1")
-      .all() // Adds all fields to the request
-      .build() // builds the request
-      .makeRequest(); // Makes the request to the API with the builded request
-Set<Map.Entry<Field, String>> list = response.getResponses(); // Get a list of responses for the requested fields
-String value = response.getValue(field); // Get the value of a field
-int left = response.getRequestsLeft(); // Gets the requests left for this ip
-int reset = response.getResetTime(); // Gets the time until the requests left for this ip reset
-```
-
-### Example
-Getting the status, country, and city
-```
-        Response response = new Builder("1.1.1.1")
-                .withStatus()
-                .withCountry()
-                .withCity()
-                .build().makeRequest();
-        String status = response.getValue(Field.STATUS);
-        String country = response.getValue(Field.COUNTRY);
-        String city = response.getValue(Field.CITY);
-        System.out.println("Status: " + status);
-        System.out.println("Country: " + country);
-        System.out.println("City: " + city);
-```
-
-Getting all fields and printing them
-```java
     public static void main(String[] args) throws IOException, ParseException {
-        Response response = new Builder("1.1.1.1")
-                .all()
-                .build().makeRequest();
+        IPResponse ipResponse = new IPRequester("8.8.8.8")
+                .withCurrency()
+                .withZip()
+                .execute();
+        BatchIPResponse batchIPResponse = new BatchIPRequester()
+                .addIP("8.8.4.4", Field.CITY, Field.CONTINENT)
+                .addIP("24.48.0.1", Field.STATUS, Field.COUNTRY)
+                .execute();
 
-        for (Map.Entry<Field, String> f : response.getResponses()) {
-            System.out.println(f.getKey().getName() + ": " + f.getValue());
+        System.out.println(" > Single IP");
+        for (Map.Entry<Field, String> entry : ipResponse.getFields().entrySet()) {
+            System.out.println(entry.getKey().getName() + ": " + entry.getValue());
         }
-        System.out.println("Requests Left: " + response.getRequestsLeft());
-        System.out.println("Reset Time: " + response.getResetTime());
+
+        System.out.println("\n > Batch IPs");
+        for (Map.Entry<String, Map<Field, String>> ip : batchIPResponse.getResponses().entrySet()) {
+            Map<Field, String> entries = batchIPResponse.getFields(ip.getKey());
+            System.out.println(" IP: " + ip.getKey());
+            entries.forEach((field, value) -> System.out.println(field.getName() +  ": " + value));
+            System.out.println(" ");
+        }
     }
 ```
 
