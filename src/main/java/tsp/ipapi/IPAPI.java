@@ -1,192 +1,55 @@
 package tsp.ipapi;
 
-import tsp.ipapi.v1.IPAPILegacy;
+import org.json.simple.parser.ParseException;
+import tsp.ipapi.batch.BatchIPRequester;
+import tsp.ipapi.batch.BatchIPResponse;
+import tsp.ipapi.single.IPRequester;
+import tsp.ipapi.single.IPResponse;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Version 2 of the {@link IPAPILegacy}
- *
  * API for ip-api.com
  * Dependency: json-simple -> https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
  *
  * @author TheSilentPro
- * @version 2.0
  */
-public class IPAPI {
+public final class IPAPI {
 
-    /**
-     * Base URL for checking ips
-     */
-    private static final String BASE_URL = "http://ip-api.com/json/";
+    private IPAPI() {}
 
-    public static class Builder {
+    public static IPResponse query(String ip) throws IOException, ParseException {
+        return new IPRequester(ip).execute();
+    }
 
-        private final String ip;
-        private String lang = "en";
-        private final Map<Field, Boolean> fields = new HashMap<>();
+    public static BatchIPResponse queryBatch(Map<String, List<Field>> ips) throws IOException, ParseException {
+        return new BatchIPRequester(ips).execute();
+    }
 
-        public Builder(String ip) {
-            this.ip = ip;
+    public static void main(String[] args) throws IOException, ParseException {
+        IPResponse ipResponse = new IPRequester("8.8.8.8")
+                .withCurrency()
+                .withZip()
+                .execute();
+        BatchIPResponse batchIPResponse = new BatchIPRequester()
+                .addIP("8.8.4.4", Field.CITY, Field.CONTINENT)
+                .addIP("24.48.0.1", Field.STATUS, Field.COUNTRY)
+                .execute();
+
+        System.out.println(" > Single IP");
+        for (Map.Entry<Field, String> entry : ipResponse.getFields().entrySet()) {
+            System.out.println(entry.getKey().getName() + ": " + entry.getValue());
         }
 
-        public Builder withStatus() {
-            fields.put(Field.STATUS, true);
-            return this;
+        System.out.println("\n > Batch IPs");
+        for (Map.Entry<String, Map<Field, String>> ip : batchIPResponse.getResponses().entrySet()) {
+            Map<Field, String> entries = batchIPResponse.getFields(ip.getKey());
+            System.out.println(" IP: " + ip.getKey());
+            entries.forEach((field, value) -> System.out.println(field.getName() +  ": " + value));
+            System.out.println(" ");
         }
-
-        public Builder withMessage() {
-            fields.put(Field.MESSAGE, true);
-            return this;
-        }
-
-        public Builder withContinent() {
-            fields.put(Field.CONTINENT, true);
-            return this;
-        }
-
-        public Builder withContinentCode() {
-            fields.put(Field.CONTINENT_CODE, true);
-            return this;
-        }
-
-        public Builder withCountry() {
-            fields.put(Field.COUNTRY, true);
-            return this;
-        }
-
-        public Builder withCountryCode() {
-            fields.put(Field.COUNTRY_CODE, true);
-            return this;
-        }
-
-        public Builder withRegion() {
-            fields.put(Field.REGION, true);
-            return this;
-        }
-
-        public Builder withRegionName() {
-            fields.put(Field.REGION_NAME, true);
-            return this;
-        }
-
-        public Builder withCity() {
-            fields.put(Field.CITY, true);
-            return this;
-        }
-
-        public Builder withDistrict() {
-            fields.put(Field.DISTRICT, true);
-            return this;
-        }
-
-        public Builder withZip() {
-            fields.put(Field.ZIP, true);
-            return this;
-        }
-
-        public Builder withLatitude() {
-            fields.put(Field.LATITUDE, true);
-            return this;
-        }
-
-        public Builder withLongitude() {
-            fields.put(Field.LONGITUDE, true);
-            return this;
-        }
-
-        public Builder withTimezone() {
-            fields.put(Field.TIMEZONE, true);
-            return this;
-        }
-
-        public Builder withOffset() {
-            fields.put(Field.OFFSET, true);
-            return this;
-        }
-
-        public Builder withCurrency() {
-            fields.put(Field.CURRENCY, true);
-            return this;
-        }
-
-        public Builder withInternetServiceProvider() {
-            fields.put(Field.INTERNET_SERVICE_PROVIDER, true);
-            return this;
-        }
-
-        public Builder withOrganization() {
-            fields.put(Field.ORGANIZATION, true);
-            return this;
-        }
-
-        public Builder withAs() {
-            fields.put(Field.AS, true);
-            return this;
-        }
-
-        public Builder withAsName() {
-            fields.put(Field.AS_NAME, true);
-            return this;
-        }
-
-        public Builder withReverse() {
-            fields.put(Field.REVERSE, true);
-            return this;
-        }
-
-        public Builder withMobile() {
-            fields.put(Field.MOBILE, true);
-            return this;
-        }
-
-        public Builder withProxy() {
-            fields.put(Field.PROXY, true);
-            return this;
-        }
-
-        public Builder withHosting() {
-            fields.put(Field.HOSTING, true);
-            return this;
-        }
-
-        public Builder withQuery() {
-            fields.put(Field.QUERY, true);
-            return this;
-        }
-
-        public Builder all() {
-            for (Field field : Field.values()) {
-                fields.put(field, true);
-            }
-            return this;
-        }
-
-        public Builder withLanguage(String language) {
-            this.lang = language;
-            return this;
-        }
-
-        public Response build() throws IOException {
-            String req = BASE_URL + ip + "?fields=";
-            StringBuilder builder = new StringBuilder();
-            int index = 0;
-            for (Map.Entry<Field, Boolean> map : fields.entrySet()) {
-                if (map.getValue()) {
-                    index++;
-                    builder.append(map.getKey().getName());
-                    if (fields.keySet().size() > index) {
-                        builder.append(",");
-                    }
-
-                }
-            }
-            req = req + builder.toString() + "&lang=" + lang;
-            return new Response(new URL(req));
-        }
-
     }
 
 }
