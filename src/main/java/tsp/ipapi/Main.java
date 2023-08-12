@@ -1,32 +1,12 @@
-### IPAPI
+package tsp.ipapi;
 
-Allows you to make requests to ip-api.com easily <br>
+import tsp.ipapi.implementation.IPEntry;
+import tsp.ipapi.implementation.IPRequester;
+import tsp.ipapi.implementation.IPResponseLang;
 
-****
+public class Main {
 
-### Dependencies
-[GSON](hhttps://mvnrepository.com/artifact/com.google.code.gson/gson) <br>
-[Java 17+](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
-
-****
-
-### Installation
-#### Maven
-```
-	<dependency>
-	    <groupId>com.github.TheSilentPro</groupId>
-	    <artifactId>IPAPI</artifactId>
-	    <version>4.0.0</version>
-	</dependency>
-```
-**Make sure you use the latest version!**
-
-You can download it from the [Releases Page](https://github.com/TheSilentPro/IPAPI/releases) or use [JitPack](https://jitpack.io/#TheSilentPro/IPAPI)
-
-****
-
-### Example Usage
-```
+    public static void main(String[] args) {
         new IPRequester()
                 .add(new IPEntry.Builder("0.0.0.0")
                         .language(IPResponseLang.ENGLISH)
@@ -45,9 +25,6 @@ You can download it from the [Releases Page](https://github.com/TheSilentPro/IPA
                         System.out.println("Reset (seconds): " + ipResponse.reset());
                     }
         });
-```
+    }
 
-****
-
-### [LICENSE](https://github.com/TheSilentPro/IPAPI/blob/master/LICENSE)
-[This API is licensed under GNU General Public License v3.0](https://github.com/TheSilentPro/IPAPI/blob/master/LICENSE)
+}

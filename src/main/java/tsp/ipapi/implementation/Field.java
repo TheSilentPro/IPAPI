@@ -1,4 +1,4 @@
-package tsp.ipapi;
+package tsp.ipapi.implementation;
 
 /**
  * All available field types
