@@ -14,11 +14,11 @@ public final class IPAPI {
 
     private IPAPI() {}
 
-    public CompletableFuture<IPResponse> query(IPEntry... ips) {
+    public static CompletableFuture<IPResponse> query(IPEntry... ips) {
         return new IPRequester().add(ips).fetch();
     }
 
-    public CompletableFuture<IPResponse> query(String... ips) {
+    public static CompletableFuture<IPResponse> query(String... ips) {
         IPRequester requester = new IPRequester();
         for (String ip : ips) {
             requester.add(new IPEntry(ip, IPResponseLang.ENGLISH, EnumSet.allOf(Field.class)));
